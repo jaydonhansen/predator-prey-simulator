@@ -3,7 +3,12 @@
 #include "World.h"
 using namespace std;
 
-World::World(int size): grid(size, vector<int>(size, -1)) {
+
+World::World(int size, int initial_predators,
+             int initial_prey):
+             grid(size, vector<int>(size, -1)) {
+    num_predators = initial_predators;
+    num_prey = initial_prey;
 }
 
 vector<Agent>::iterator World::getAgentAt(int x, int y) {
@@ -70,5 +75,38 @@ void World::tick() {
             remaining = agents.size();
         }
         agents[i].move(delta_x, delta_y);
+
+    }
+    spawn_predator();
+    spawn_prey();
+}
+
+// Generate a new predator with a probability
+void World::spawn_predator() {
+    if (dis(generator) < 0.3) {
+        int x_pos = generator() % grid.size();
+        int y_pos = generator() % grid.size();
+
+        if (grid[x_pos][y_pos] == -1) {
+            agents.emplace_back(this, true, x_pos, y_pos);
+            placeIDAt(agents.back().id, agents.back().x_pos, agents.back().x_pos);
+            num_predators++;
+        }
+    }
+
+}
+// Generate a new prey with a probability
+void World::spawn_prey() {
+
+    if (dis(generator) < 0.5) {
+        int x_pos = generator() % grid.size();
+        int y_pos = generator() % grid.size();
+
+        if (grid[x_pos][y_pos] == -1) {
+            agents.emplace_back(this, false, x_pos, y_pos);
+            placeIDAt(agents.back().id, agents.back().x_pos, agents.back().x_pos);
+            num_prey++;
+        }
     }
 }
+
