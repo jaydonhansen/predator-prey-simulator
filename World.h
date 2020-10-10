@@ -10,8 +10,13 @@ class World {
         vector<Agent> agents;
         int num_predators;
         int num_prey;
+        float predator_reproduction_chance;
+        float prey_reproduction_chance;
+        int predator_hunger_limit;
 
-        World(int size, int initial_predators, int initial_prey);
+        World(int size, int initial_predators, int initial_prey,
+              float predator_reproduction_chance, float prey_reproduction_chance,
+              int predator_hunger_limit);
 
         vector<Agent, allocator<Agent>>::iterator getAgentAt(int x, int y);
 
@@ -24,5 +29,8 @@ class World {
         void spawn_predator();
 
         void spawn_prey();
+
+        void kill_predators();
+
 };
 

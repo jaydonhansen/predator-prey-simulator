@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/jaydon/CLionProjects/milestone1/Agent.h
+
+/Users/jaydon/CLionProjects/milestone1/Main.cpp
+fstream
+-
+iostream
+-
+World.h
+/Users/jaydon/CLionProjects/milestone1/World.h
+Rand.h
+/Users/jaydon/CLionProjects/milestone1/Rand.h
+
+/Users/jaydon/CLionProjects/milestone1/Rand.h
+random
+-
+
+/Users/jaydon/CLionProjects/milestone1/World.h
+vector
+-
+Agent.h
+/Users/jaydon/CLionProjects/milestone1/Agent.h
+

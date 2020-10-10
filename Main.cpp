@@ -1,18 +1,23 @@
-
-#include <random>
+#include <fstream>
 #include <iostream>
 #include "World.h"
 #include "Rand.h"
 
-#define WORLD_SIZE          100
-#define INITIAL_PREDATORS   500
-#define INITIAL_PREY        500
-#define NUM_TICKS           10000
+#define WORLD_SIZE                      10    // Size of the world
+#define INITIAL_PREDATORS               20    // Predator n(0)
+#define INITIAL_PREY                    40    // Prey n(0)
+#define PREDATOR_REPRODUCTION_CHANCE    0.05   // Chance of predators reproducing
+#define PREY_REPRODUCTION_CHANCE        0.1   // Chance of prey reproducing
+#define PREDATOR_HUNGER_LIMIT           500     // How hungry a predator can get before dying
+#define NUM_TICKS                       10000    // Number of times to iterate
 
 using namespace std;
 
 int main() {
-    World world{WORLD_SIZE, INITIAL_PREDATORS, INITIAL_PREY};
+    World world{WORLD_SIZE, INITIAL_PREDATORS, INITIAL_PREY,
+                PREDATOR_REPRODUCTION_CHANCE, PREY_REPRODUCTION_CHANCE,
+                PREDATOR_HUNGER_LIMIT};
+
     // Generates some number of initial predators and puts them on the grid
     for (int i = 0; i < INITIAL_PREDATORS; i++) {
         // Generate some random ints
@@ -39,13 +44,32 @@ int main() {
         world.placeIDAt(agent.id, agent.x_pos, agent.y_pos);
     }
 
-    for (int i = 0; i < NUM_TICKS; i++) {
-        if (i % 1000 == 0) {
-            std::cout << "pred: " << world.num_predators << "\n";
-            std::cout << "prey: " << world.num_prey << "\n";
-        }
-
-        world.tick();
+    const char *path = "simulation.tsv";
+    std::ofstream file(path);
+    if (!file) {
+        std:cerr << "Unable to open file for writing.\n";
+        std::abort();
     }
-
+    file << "time\tpredators\tprey\n";
+    vector<int> times;
+    vector<int> pred_pops;
+    vector<int> prey_pops;
+    // Tick equal to num_ticks
+    for (int i = 0; i < NUM_TICKS; i++) {
+        if (i % 10 == 0) {
+            times.emplace_back(i);
+            pred_pops.emplace_back(world.num_predators);
+            prey_pops.emplace_back(world.num_prey);
+        }
+       world.tick();
+    }
+    for (int i = 0; i < times.size(); i++) {
+        file << times[i] << "\t" << pred_pops[i] << "\t" << prey_pops[i] << "\n";
+    }
+    if (!file) {
+        std::cerr << "Failed to write file contents.\n";
+        std::abort();
+    }
+    file.close();
+    return 0;
 }

@@ -19,22 +19,20 @@ int Agent::eat(int x, int y) {
     int new_x = x_pos + x;
     int new_y = y_pos + y;
     int size = world->grid.size();
-    if (this->predator) {
-        if (new_x < size
-            && new_x >= 0
-            && new_y < size
-            && new_y >= 0) {
-            vector<Agent>::iterator agentAt;
-            if ((agentAt = world->getAgentAt(
-                    x_pos + x, y_pos + y)) == world->agents.end()) {
-            } else {
-                if (agentAt->predator == false) {
-                    int dist = distance(begin(world->agents), agentAt);
-                    world->removeIDAt(new_x, new_y);
-                    world->agents.erase(agentAt);
-                    world->num_prey--;
-                    return dist;
-                }
+    if (new_x < size
+        && new_x >= 0
+        && new_y < size
+        && new_y >= 0) {
+        vector<Agent>::iterator agentAt;
+        if ((agentAt = world->getAgentAt(
+                x_pos + x, y_pos + y)) == world->agents.end()) {
+        } else {
+            if (agentAt->predator == false) {
+                int dist = distance(begin(world->agents), agentAt);
+                world->removeIDAt(new_x, new_y);
+                world->agents.erase(agentAt);
+                world->num_prey--;
+                return dist;
             }
         }
     }
