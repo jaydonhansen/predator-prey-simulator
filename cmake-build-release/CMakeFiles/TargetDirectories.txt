@@ -1,3 +1,0 @@
-/Users/jaydon/CLionProjects/milestone1/cmake-build-release/CMakeFiles/rebuild_cache.dir
-/Users/jaydon/CLionProjects/milestone1/cmake-build-release/CMakeFiles/edit_cache.dir
-/Users/jaydon/CLionProjects/milestone1/cmake-build-release/CMakeFiles/milestone1.dir
