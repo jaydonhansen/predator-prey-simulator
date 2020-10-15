@@ -1,0 +1,3 @@
+/Users/jaydon/CLionProjects/milestone1/CMakeFiles/rebuild_cache.dir
+/Users/jaydon/CLionProjects/milestone1/CMakeFiles/edit_cache.dir
+/Users/jaydon/CLionProjects/milestone1/CMakeFiles/milestone1.dir
