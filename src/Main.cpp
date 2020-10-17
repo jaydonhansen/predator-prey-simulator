@@ -4,8 +4,8 @@
 #include "Rand.h"
 
 #define WORLD_SIZE                      10    // Size of the world
-#define INITIAL_PREDATORS               20    // Predator n(0)
-#define INITIAL_PREY                    40    // Prey n(0)
+#define INITIAL_PREDATORS               100    // Predator n(0)
+#define INITIAL_PREY                    200    // Prey n(0)
 #define PREDATOR_REPRODUCTION_CHANCE    0.05   // Chance of predators reproducing
 #define PREY_REPRODUCTION_CHANCE        0.1   // Chance of prey reproducing
 #define PREDATOR_HUNGER_LIMIT           500     // How hungry a predator can get before dying
