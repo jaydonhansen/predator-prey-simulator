@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 #include "Rand.h"
 #include "World.h"
@@ -36,16 +37,75 @@ void World::removeIDAt(int x, int y) {
 }
 
 void World::tick() {
-    kill_predators();
     int delta_x;
     int delta_y;
-    int remaining = agents.size();
-    for (int i = 0; i < remaining; i++) {
+    vector<vector<Agent>::iterator> toDelete;
+    int newPredators = 0;
+    int newPrey = 0;
+
+    #pragma omp parallel for
+    for (int i = 0; i < agents.size(); i++) {
         Agent *agent = &agents[i];
+        vector<vector<Agent>::iterator> localDelete;
         // Directions to move
-        // Generate a random int [0..3], then decide a new trajectory
-        int direction = generator() % 4;
-        switch (direction) {
+        agent->direction = (generator() % 4); // Generate a random direction for each agent to attempt to eat/move
+
+        // Determine the direction to eat
+        if (agent->predator) {
+            // Roll for reproduction
+            switch (agent->direction) {
+                case 0:
+                    // North
+                    delta_x = 0;
+                    delta_y = 1;
+                    break;
+                case 1:
+                    // East
+                    delta_x = 1;
+                    delta_y = 0;
+                    break;
+                case 2:
+                    // South
+                    delta_x = 0;
+                    delta_y = -1;
+                    break;
+                case 3:
+                    // West
+                    delta_x = -1;
+                    delta_y = 0;
+                    break;
+                default:
+                    delta_y = 0;
+                    delta_x = 0;
+            }
+
+            vector<Agent>::iterator eaten = agent->eat(delta_x, delta_y);
+            // If there's a prey at the position, mark it for deletion
+            if (eaten != agents.end()) {
+                localDelete.push_back(eaten);
+            }
+            // If the predator is starving, mark it for deletion
+            if (agent->hunger > predator_hunger_limit) {
+                localDelete.push_back(agents.begin() + i);
+            }
+        }
+        #pragma omp critical
+        // Iteratively append each thread-local list of to-be-deleted agents to the list
+        toDelete.insert(toDelete.end(), localDelete.begin(), localDelete.end());
+    }
+
+    // Reverse sort the positions to delete and erase them
+    
+    sort(toDelete.rbegin(), toDelete.rend());
+    for (auto iter : toDelete) {
+        agents.erase(iter);
+    }
+
+   #pragma omp parallel for
+    for (int i = 0; i < agents.size(); i++) {
+        Agent *agent = &agents[i];
+        // Choose a direction
+        switch (agent->direction) {
             case 0:
                 // North
                 delta_x = 0;
@@ -70,70 +130,59 @@ void World::tick() {
                 delta_y = 0;
                 delta_x = 0;
         }
-        // If the agent is a predator, call eat()
+        //#pragma omp critical
+        //agent->move(delta_x, delta_y);
+    }
+
+    // Check for reproduction
+    for (int i = 0; i < agents.size(); i++) {
+        int reproduce;
+        Agent *agent = &agents[i];
+
         if (agent->predator) {
-            int eaten;
-            eaten = agent->eat(delta_x, delta_y);
-            if (eaten == -1) {
-                // If nothing is eaten, increment hunger
-                agent->hunger += 1;
-                // If hunger > 5, kill the hunter
-            } else if (eaten < i) {
-                agent->hunger = 0;
-                i--;
-                remaining = agents.size();
-            } else {
-                agent->hunger = 0;
-                remaining = agents.size();
-            }
-        }
-        agent->move(delta_x, delta_y);
-        if (agent->predator) {
-            spawn_predator();
+            reproduce = spawn_predator();
+            newPredators += 1;
+
         } else {
-            spawn_prey();
+            reproduce = spawn_prey();
+            newPrey += 1;
+        }
+    }
+
+    // Spawn new predators
+    for (int i = 0; i < newPredators; i++) {
+        int x_pos = generator() % grid.size();
+        int y_pos = generator() % grid.size();
+        if (grid[x_pos][y_pos] == -1) {
+                agents.emplace_back(this, true, x_pos, y_pos);
+                placeIDAt(agents.back().id, agents.back().x_pos, agents.back().x_pos);
+                num_predators++;
+        }
+    }
+
+    // Spawn new prey
+    for (int i = 0; i < newPrey; i++) {
+        int x_pos = generator() % grid.size();
+        int y_pos = generator() % grid.size();
+        if (grid[x_pos][y_pos] == -1) {
+                agents.emplace_back(this, false, x_pos, y_pos);
+                placeIDAt(agents.back().id, agents.back().x_pos, agents.back().x_pos);
+                num_predators++;
         }
     }
 }
 
-// Generate a new predator with a probability
-void World::spawn_predator() {
+// Roll on whether we spawn a new predator
+int World::spawn_predator() {
     if (dis(generator) < predator_reproduction_chance && num_predators > 1) {
-        int x_pos = generator() % grid.size();
-        int y_pos = generator() % grid.size();
-
-        if (grid[x_pos][y_pos] == -1) {
-            agents.emplace_back(this, true, x_pos, y_pos);
-            placeIDAt(agents.back().id, agents.back().x_pos, agents.back().x_pos);
-            num_predators++;
-        }
+        return 1;
     }
-
+    return 0;
 }
 // Generate a new prey if the probability roll is less than the reproduction rate
-void World::spawn_prey() {
+int World::spawn_prey() {
     if ((dis(generator) < prey_reproduction_chance && num_prey > 1)) {
-        int x_pos = generator() % grid.size();
-        int y_pos = generator() % grid.size();
-
-        if (grid[x_pos][y_pos] == -1) {
-            agents.emplace_back(this, false, x_pos, y_pos);
-            placeIDAt(agents.back().id, agents.back().x_pos, agents.back().x_pos);
-            num_prey++;
-        }
+        return 1;
     }
+    return 0;
 }
-
-void World::kill_predators() {
-    for (int i = 0; i < agents.size(); i++) {
-        Agent* agent = &agents[i];
-        if (agent->predator) {
-           if (agent->hunger >= predator_hunger_limit) {
-               removeIDAt(agent->x_pos, agent->y_pos);
-               agents.erase(agents.begin() + (agent - agents.data()));
-               num_predators--;
-           }
-        }
-    }
-}
-

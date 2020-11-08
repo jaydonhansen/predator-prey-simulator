@@ -12,9 +12,10 @@ class Agent {
         int y_pos;
         bool predator;
         int hunger;
+        int direction;
         World* world;
 
-        int eat(int x, int y);
+        std::vector<Agent>::iterator eat(int x, int y);
 
         void move(int x, int y);
 };

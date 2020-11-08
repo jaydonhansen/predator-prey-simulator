@@ -26,9 +26,9 @@ class World {
 
         void tick();
 
-        void spawn_predator();
+        int spawn_predator();
 
-        void spawn_prey();
+        int spawn_prey();
 
         void kill_predators();
 

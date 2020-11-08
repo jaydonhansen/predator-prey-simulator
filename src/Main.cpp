@@ -1,14 +1,15 @@
+#include <omp.h>
 #include <fstream>
 #include <iostream>
 #include "World.h"
 #include "Rand.h"
 
-#define WORLD_SIZE                      10    // Size of the world
-#define INITIAL_PREDATORS               100    // Predator n(0)
-#define INITIAL_PREY                    200    // Prey n(0)
+#define WORLD_SIZE                      100    // Size of the world
+#define INITIAL_PREDATORS               200    // Predator n(0)
+#define INITIAL_PREY                    400    // Prey n(0)
 #define PREDATOR_REPRODUCTION_CHANCE    0.05   // Chance of predators reproducing
 #define PREY_REPRODUCTION_CHANCE        0.1   // Chance of prey reproducing
-#define PREDATOR_HUNGER_LIMIT           500     // How hungry a predator can get before dying
+#define PREDATOR_HUNGER_LIMIT           50     // How hungry a predator can get before dying
 #define NUM_TICKS                       10000    // Number of times to iterate
 
 using namespace std;
@@ -47,7 +48,7 @@ int main() {
     const char *path = "simulation.tsv";
     std::ofstream file(path);
     if (!file) {
-        std:cerr << "Unable to open file for writing.\n";
+        cerr << "Unable to open file for writing.\n";
         std::abort();
     }
     file << "time\tpredators\tprey\n";
@@ -55,6 +56,7 @@ int main() {
     vector<int> pred_pops;
     vector<int> prey_pops;
     // Tick equal to num_ticks
+    #pragma omp parallel for
     for (int i = 0; i < NUM_TICKS; i++) {
         if (i % 10 == 0) {
             times.emplace_back(i);
