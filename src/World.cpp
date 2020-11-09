@@ -121,8 +121,8 @@ void World::tick() {
     }
 
     #pragma omp for
-    for (auto & i : agents) {
-       Agent *agent = &i;
+    for (int i = 0; i < agents.size(); i++) {
+       Agent *agent = &agents[i];
        int direction = generator() % 4; // Generate a random direction for each agent to attempt to eat/move
         // Determine the direction to move
         switch (direction) {
