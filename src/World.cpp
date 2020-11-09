@@ -5,7 +5,6 @@
 #include "World.h"
 using namespace std;
 
-
 World::World(int size, int initial_predators, int initial_prey,
              float predator_reproduction_chance, float prey_reproduction_chance,
              int predator_hunger_limit):
@@ -46,7 +45,7 @@ void World::tick() {
     int newPredators = 0;
     int newPrey = 0;
 
-    #pragma omp parallel default(none) shared(toDelete, toClear, delta_x, delta_y, generator)
+    #pragma omp parallel shared(toDelete, toClear, delta_x, delta_y, generator)
     #pragma omp for
     for (int i = 0; i < agents.size(); i++) {
         Agent *agent = &agents[i];
@@ -79,16 +78,16 @@ void World::tick() {
                     delta_y = 0;
                     delta_x = 0;
             }
-            // It takes energy to go hunting
+            // Attempt to eat the prey at the location
             int eaten = agent->eat(delta_x, delta_y);
+
             // If there's a prey at the position, mark it for deletion
-            
             #pragma omp critical
             if (eaten != -1 && num_prey > 0) {
                 agent->hunger = 0; // yum
                 // mark the prey for deletion
                 toDelete.push_back(eaten);
-                // Calcualte positions to clear
+                // Calculate positions to clear
                 int new_x = agent->x_pos + delta_x;
                 int new_y = agent->y_pos + delta_x;
                 // Out of bounds check. This will segfault if not done!
@@ -183,6 +182,7 @@ void World::tick() {
         spawn_prey();
     }
 
+    // Update the grid positions
     for (auto const& agent : agents) {
         placeIDAt(agent.id, agent.x_pos, agent.y_pos);
     }

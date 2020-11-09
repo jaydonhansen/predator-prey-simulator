@@ -3,13 +3,13 @@
 #include "World.h"
 #include "Rand.h"
 
-#define WORLD_SIZE                      100    // Size of the world
-#define INITIAL_PREDATORS               1000    // Predator n(0)
-#define INITIAL_PREY                    2000    // Prey n(0)
-#define PREDATOR_REPRODUCTION_CHANCE    0.1   // Chance of predators reproducing
-#define PREY_REPRODUCTION_CHANCE        1.0   // Chance of prey reproducing
-#define PREDATOR_HUNGER_LIMIT           3     // How hungry a predator can get before dying
-#define NUM_TICKS                       100    // Number of times to iterate
+#define WORLD_SIZE                      1000    // Size of the world
+#define INITIAL_PREDATORS               4000    // Predator n(0)
+#define INITIAL_PREY                    4000    // Prey n(0)
+#define PREDATOR_REPRODUCTION_CHANCE    0.05   // Chance of predators reproducing
+#define PREY_REPRODUCTION_CHANCE        0.1   // Chance of prey reproducing
+#define PREDATOR_HUNGER_LIMIT           10     // How hungry a predator can get before dying
+#define NUM_TICKS                       500    // Number of times to iterate
 
 using namespace std;
 int main() {
