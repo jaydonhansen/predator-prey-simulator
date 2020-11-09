@@ -46,7 +46,7 @@ void World::tick() {
     int newPredators = 0;
     int newPrey = 0;
 
-    #pragma omp parallel default(none) shared(agents, toDelete, toClear, delta_x, delta_y, generator)
+    #pragma omp parallel default(none) shared(toDelete, toClear, delta_x, delta_y, generator)
     #pragma omp for
     for (int i = 0; i < agents.size(); i++) {
         Agent *agent = &agents[i];
