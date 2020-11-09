@@ -1,5 +1,6 @@
 #include "Agent.h"
 #include "World.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ Agent::Agent(World* world, bool predator, int x_pos, int y_pos) {
 
 // Attempt to eat something at the targeted point
 int Agent::eat(int x, int y) {
+    hunger++; // it takes energy to hunt
     int new_x = x_pos + x;
     int new_y = y_pos + y;
     int size = world->grid.size();
@@ -23,19 +25,17 @@ int Agent::eat(int x, int y) {
         && new_x >= 0
         && new_y < size
         && new_y >= 0) {
-        vector<Agent>::iterator agentAt;
-        if ((agentAt = world->getAgentAt(
-                x_pos + x, y_pos + y)) == world->agents.end()) {
+        int agentAt = world->grid[new_x][new_y];
+        // If there's nothing there
+        if (agentAt == -1) {
+            return -1;
         } else {
-            if (agentAt->predator == false) {
-                int dist = distance(begin(world->agents), agentAt);
-                world->removeIDAt(new_x, new_y);
-                world->agents.erase(agentAt);
-                world->num_prey--;
-                return dist;
+        // If there's a prey there
+            int agentAt = world->grid[new_x][new_y];
+            if (!world->getAgentAt(new_x, new_y)->predator)
+                return agentAt;
             }
         }
-    }
     return -1;
 }
 

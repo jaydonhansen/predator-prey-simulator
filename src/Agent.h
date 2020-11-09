@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 class World;
 
 class Agent {
@@ -12,10 +12,12 @@ class Agent {
         int y_pos;
         bool predator;
         int hunger;
+        int direction;
         World* world;
 
         int eat(int x, int y);
 
         void move(int x, int y);
-};
 
+        bool reproduce();
+};

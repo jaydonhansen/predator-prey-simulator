@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include <random>
 
 // Generates a seed from the current time then generates a random integer
